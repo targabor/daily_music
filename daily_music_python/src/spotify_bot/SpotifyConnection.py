@@ -1,8 +1,7 @@
 import requests
 
-from python_logger.src.Logger import Logger
 from typing import TYPE_CHECKING
-
+from src.python_logger.Logger import Logger
 # Place there the imports which are needed only for type checking
 if TYPE_CHECKING:
     pass
