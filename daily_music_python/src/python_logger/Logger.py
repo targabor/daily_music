@@ -10,3 +10,11 @@ class Logger:
             message (str): error message you want to print
         """
         print(message, file=sys.stderr)
+
+    def error(message: str):
+        """Print info as console message
+
+        Args:
+            message (str): info message you want to print
+        """
+        print(message)

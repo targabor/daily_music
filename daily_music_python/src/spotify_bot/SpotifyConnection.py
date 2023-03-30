@@ -47,12 +47,13 @@ class SpotifyConnection:
         self.__access_token = auth_response_data['access_token']
         self.__token_expires = time.time() + auth_response_data['expires_in']
 
-
-# Some test shit
-connector = SpotifyConnection(
-    'b2fbeaacf12d4b329a0e67000b92e356', '2e0555828d3f426a884f7bacb440e0d6')
-
-try:
-    connector.get_token()
-except Exception as e:
-    Logger.error(e)
+    # Wrapper function that makes easier to manage access tokens
+    def check_token(func):
+        # It checks every time before any method call inside a class
+        # that the token is still active
+        def inner(self, *args, **kwargs):
+            if self.__token_expires <= time.time():
+                print('Getting new token')
+                self.__refresh_token()
+            func(self, *args, **kwargs)
+        return inner
