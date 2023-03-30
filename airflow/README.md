@@ -22,22 +22,6 @@ make sure to update constraint file version in regard to your local python versi
 ## create airflow image
 ```shell
 ~$ docker compose up airflow-init
+~$ docker ps
+~$ docker compose up -d
 ```
-## Docker cmds
-```shell 
-# clone
-docker run --name repo alpine/git clone https://github.com/docker/getting-started.git
-
-# build
-docker build -t docker101tutorial .
-
-# run
-docker run -d -p 80:80 --name docker-tutorial docker101tutorial
-
-# save
-docker tag docker101tutorial albabuhin/docker101tutorial
-
-#share
-docker push albabuhin/docker101tutorial
-```
-
