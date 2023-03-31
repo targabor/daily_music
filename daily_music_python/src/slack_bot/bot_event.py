@@ -23,7 +23,7 @@ def message(payload):
     app.logger.warning(payload)
 
 
-@app.route('/slack_challenge')
+@app.route('/slack_challenge', methods=["POST"])
 def hello_slack():
     try:
         app.logger.warning(request.get_json(silent=True, force=True))
@@ -34,6 +34,11 @@ def hello_slack():
     except Exception as e:
         app.logger.warning(e)
         return make_response(str(e), 500, "text/plain")
+
+
+@app.route('status', methods=['GET'])
+def status():
+    return make_response('OK', 200, "text/plain")
 
 
 if __name__ == "__main__":
