@@ -33,7 +33,7 @@ def hello_slack():
         return make_response('This endpoint is reserved for Slack\'s verification.', 400, "text/plain")
     except Exception as e:
         app.logger.warning(e)
-        return make_response(e, 500, "text/plain")
+        return make_response(str(e), 500, "text/plain")
 
 
 if __name__ == "__main__":
