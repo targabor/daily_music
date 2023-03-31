@@ -29,16 +29,20 @@ def hello_slack():
         app.logger.warning(request.get_json(silent=True, force=True))
         request_json = request.get_json(silent=True, force=True)
         if request_json.get("challenge") is not None:
-            return make_response(request_json.get("challenge"), 200, "text/plain")
-        return make_response('This endpoint is reserved for Slack\'s verification.', 400, "text/plain")
+            response = make_response(request_json.get("challenge"), 200)
+            response.headers['Content-Type'] = 'text/plain'
+            return request
+        return make_response('This endpoint is reserved for Slack\'s verification.', 400)
     except Exception as e:
         app.logger.warning(e)
-        return make_response(str(e), 500, "text/plain")
+        return make_response(str(e), 500)
 
 
 @app.route('/status', methods=['GET'])
 def status():
-    return make_response('OK', 200, "text/plain")
+    response = make_response('OK', 200)
+    response.headers['Content-Type'] = 'text/plain'
+    return response
 
 
 if __name__ == "__main__":
