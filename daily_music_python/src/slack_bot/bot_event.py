@@ -1,5 +1,6 @@
 import slack
 import os
+import logging
 
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
@@ -16,7 +17,7 @@ client.chat_postMessage(channel='#bot-test', text='Hello World!')
 
 @ slack_event_adapter.on('message')
 def message(payload):
-    print(payload)
+    app.logger.info(payload)
 
 
 if __name__ == "__main__":
