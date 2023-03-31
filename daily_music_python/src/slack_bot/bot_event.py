@@ -2,7 +2,7 @@ import slack
 import os
 import logging
 
-from flask import Flask
+from flask import Flask, make_response
 from slackeventsapi import SlackEventAdapter
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
@@ -17,9 +17,16 @@ gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 
 
-@ slack_event_adapter.on('message')
+@slack_event_adapter.on('message')
 def message(payload):
     app.logger.warning(payload)
+
+
+@slack_event_adapter.on('challenge')
+def challenge(challenge):
+    response = make_response(challenge['challenge'], 200)
+    response.mimetype = "text/plain"
+    return response
 
 
 if __name__ == "__main__":
