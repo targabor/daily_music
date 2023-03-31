@@ -31,7 +31,7 @@ def hello_slack():
         if request_json.get("challenge") is not None:
             response = make_response(request_json.get("challenge"), 200)
             response.headers['Content-Type'] = 'text/plain'
-            return request
+            return response
         return make_response('This endpoint is reserved for Slack\'s verification.', 400)
     except Exception as e:
         app.logger.warning(e)
