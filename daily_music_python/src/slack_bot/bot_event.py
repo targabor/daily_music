@@ -42,7 +42,7 @@ def status():
     return response
 
 
-@app.route('full_extraction', methods=['GET'])
+@app.route('/full_extraction', methods=['GET'])
 def full_extraction():
     """It will load all music data from #daily_music Slack channel to snowflake"""
     channel_id = "C04UCUENRCG"
