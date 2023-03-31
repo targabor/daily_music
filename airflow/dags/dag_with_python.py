@@ -9,15 +9,17 @@ default_args = {
 
 }
 
-def greet(name):
+def greet(ti):
+    name = ti.xcom_pull(task_ids='get_name')
     print(f'hello {name}')
 
-def get_name():
-    return 'Jerry'
+def get_name(ti):
+    ti.xcom_push(key='name', value='Berry')
+    
 
 with DAG(
     default_args=default_args,
-    dag_id= 'dag_with_python3',
+    dag_id= 'dag_with_python4',
     description='first_python_dag',
     start_date=datetime(2023,3,29),
     schedule_interval='@daily'
@@ -26,7 +28,6 @@ with DAG(
     task1 = PythonOperator(
         task_id = 'greet_with_kwargs',
         python_callable = greet,
-        op_kwargs={'name': 'Gabor'}
     )
     
     task2 = PythonOperator(
@@ -34,5 +35,4 @@ with DAG(
         python_callable = get_name # when done the returned value will be visible in Admin -> xcoms 
     )
 
-    task1
-    task2
+    task2 >> task1
