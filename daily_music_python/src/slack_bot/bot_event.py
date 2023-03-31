@@ -20,6 +20,7 @@ app.logger.handlers = gunicorn_logger.handlers
 
 @app.route('/slack_challenge', methods=["POST"])
 def hello_slack():
+    """This method needed to connect Slack's event driven API"""
     try:
         app.logger.warning(request.get_json(silent=True, force=True))
         request_json = request.get_json(silent=True, force=True)
@@ -35,23 +36,31 @@ def hello_slack():
 
 @app.route('/status', methods=['GET'])
 def status():
+    """Basic status check for Slack API"""
     response = make_response('OK', 200)
     response.headers['Content-Type'] = 'text/plain'
     return response
 
 
-@ slack_event_adapter.on('message')
-def message(payload):
-    gunicorn_logger.warning(payload)
-    event = payload.get('event', {})
-    channel_id = event.get('channel')
-    user_id = event.get('user')
-    text = event.get('text')
-    gunicorn_logger.warning(
-        f'channel:{channel_id} \t user:{user_id} \t text:{text}')
-    if text == "hi":
-        client.chat_postMessage(channel=channel_id, text="Hello")
+@app.route('full_extraction', methods=['GET'])
+def full_extraction():
+    """It will load all music data from #daily_music Slack channel to snowflake"""
+    channel_id = "C04UCUENRCG"
+    return make_response('Done', 200)
 
+
+# Currently it's buggy (every event triggers twice)
+# @slack_event_adapter.on('message')
+# def message(payload):
+#     gunicorn_logger.warning(payload)
+#     event = payload.get('event', {})
+#     channel_id = event.get('channel')
+#     user_id = event.get('user')
+#     text = event.get('text')
+#     gunicorn_logger.warning(
+#         f'channel:{channel_id} \t user:{user_id} \t text:{text}')
+#     if text == "hi":
+#         client.chat_postMessage(channel=channel_id, text="Hello")
 
 if __name__ == "__main__":
     app.run(debug=True)
