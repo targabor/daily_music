@@ -37,7 +37,7 @@ def hello_slack():
 @app.route('/status', methods=['GET'])
 def status():
     """Basic status check for Slack API"""
-    response = make_response('OK', 200)
+    response = make_response('Slack App Status: OK', 200)
     response.headers['Content-Type'] = 'text/plain'
     return response
 
