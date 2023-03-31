@@ -23,13 +23,11 @@ def message(payload):
     app.logger.warning(payload)
 
 
-@slack_event_adapter.on('challenge')
-def challenge(challenge):
+@app.route('/slack_challenge')
+def hello_slack():
     request_json = request.get_json(silent=True, force=True)
-    response_body = json.dumps(request_json)
-    response = make_response((), 200)
-    response.headers['Content-Type'] = 'text/plain'
-    return response
+    if request_json.get("challenge") is not None:
+        return make_response(request_json.get("challenge"), 200, "text/plain")
 
 
 if __name__ == "__main__":
