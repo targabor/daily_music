@@ -36,7 +36,7 @@ def hello_slack():
         return make_response(str(e), 500, "text/plain")
 
 
-@app.route('status', methods=['GET'])
+@app.route('/status', methods=['GET'])
 def status():
     return make_response('OK', 200, "text/plain")
 
