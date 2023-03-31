@@ -1,8 +1,9 @@
 import slack
 import os
 import logging
+import json
 
-from flask import Flask, make_response
+from flask import Flask, make_response, request
 from slackeventsapi import SlackEventAdapter
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
@@ -24,8 +25,10 @@ def message(payload):
 
 @slack_event_adapter.on('challenge')
 def challenge(challenge):
-    response = make_response(challenge['challenge'], 200)
-    response.mimetype = "text/plain"
+    request_json = request.get_json(silent=True, force=True)
+    response_body = json.dumps(request_json)
+    response = make_response((), 200)
+    response.headers['Content-Type'] = 'text/plain'
     return response
 
 
