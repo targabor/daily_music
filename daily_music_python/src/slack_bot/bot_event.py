@@ -18,11 +18,6 @@ gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 
 
-@slack_event_adapter.on('message')
-def message(payload):
-    app.logger.warning(payload)
-
-
 @app.route('/slack_challenge', methods=["POST"])
 def hello_slack():
     try:
@@ -52,7 +47,8 @@ def message(payload):
     channel_id = event.get('channel')
     user_id = event.get('user')
     text = event.get('text')
-    gunicorn_logger.warning(f'{channel_id} \t {user_id} \t {text}')
+    gunicorn_logger.warning(
+        f'channel:{channel_id} \t user:{user_id} \t text:{text}')
     if text == "hi":
         client.chat_postMessage(channel=channel_id, text="Hello")
 
