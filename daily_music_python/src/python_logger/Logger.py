@@ -11,7 +11,7 @@ class Logger:
         """
         print(message, file=sys.stderr)
 
-    def error(message: str):
+    def info(message: str):
         """Print info as console message
 
         Args:
