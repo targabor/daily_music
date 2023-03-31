@@ -45,5 +45,17 @@ def status():
     return response
 
 
+@ slack_event_adapter.on('message')
+def message(payload):
+    gunicorn_logger.warning(payload)
+    event = payload.get('event', {})
+    channel_id = event.get('channel')
+    user_id = event.get('user')
+    text = event.get('text')
+
+    if text == "hi":
+        client.chat_postMessage(channel=channel_id, text="Hello")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
