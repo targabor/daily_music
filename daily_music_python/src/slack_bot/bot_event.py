@@ -52,7 +52,7 @@ def message(payload):
     channel_id = event.get('channel')
     user_id = event.get('user')
     text = event.get('text')
-
+    gunicorn_logger.warning(f'{channel_id} \t {user_id} \t {text}')
     if text == "hi":
         client.chat_postMessage(channel=channel_id, text="Hello")
 
