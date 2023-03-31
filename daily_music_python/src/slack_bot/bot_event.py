@@ -25,9 +25,12 @@ def message(payload):
 
 @app.route('/slack_challenge')
 def hello_slack():
-    request_json = request.get_json(silent=True, force=True)
-    if request_json.get("challenge") is not None:
-        return make_response(request_json.get("challenge"), 200, "text/plain")
+    try:
+        request_json = request.get_json(silent=True, force=True)
+        if request_json.get("challenge") is not None:
+            return make_response(request_json.get("challenge"), 200, "text/plain")
+    except Exception as e:
+        app.logger.warning(e)
 
 
 if __name__ == "__main__":
