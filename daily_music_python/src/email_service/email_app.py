@@ -11,8 +11,8 @@ app.logger.handlers = gunicorn_logger.handlers
 
 @app.route('/status', methods=['GET'])
 def status():
-    """Basic status check for spotify_app status"""
-    response = make_response('Spotify App Status: OK', 200)
+    """Basic status check for email service status"""
+    response = make_response('Email Service Status: OK', 200)
     response.headers['Content-Type'] = 'text/plain'
     return response
 
