@@ -35,7 +35,7 @@ def test():
             reaction_count = 0
             if 'reactions' in message.keys():
                 reaction_count = sum([r['count']
-                                     for r in message['reactions']])
+                                      for r in message['reactions']])
             print(f'Reaction count : {reaction_count}')
     except Exception as e:
         Logger.error("Error creating conversation: {}".format(e))
@@ -47,6 +47,7 @@ def full_extraction():
     result = client.conversations_history(channel=channel_id, limit=1000)
     print('first 1000')
     while result['has_more']:
+        print()
         result = client.conversations_history(channel=channel_id,
                                               limit=1000,
                                               cursor=result['response_metadata']['next_cursor'])
