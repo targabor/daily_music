@@ -9,3 +9,6 @@ daily_music_python/src.egg-info
 
 # Pycache
 *__pycache__
+
+# Credentials
+*/cred.ini
