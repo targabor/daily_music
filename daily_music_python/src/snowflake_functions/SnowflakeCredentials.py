@@ -33,7 +33,7 @@ class SnowflakeCredentials:
             SnowflakeCredentials: It contains all the necessary data to access the given schema in Snowflake.
         """
         return_credential = None
-        with open('file_path', 'r') as cred_in:
+        with open('', 'r') as cred_in:
             for line in cred_in.readlines():
                 if line.startswith(schemaName):
                     return_credential = SnowflakeCredentials(line)

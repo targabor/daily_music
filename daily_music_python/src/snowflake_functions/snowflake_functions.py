@@ -1,5 +1,6 @@
 import snowflake.connector
 from src.snowflake_functions.SnowflakeCredentials import SnowflakeCredentials
+from datetime import datetime
 
 
 def __connect_to_snowflake(credentials: SnowflakeCredentials) -> snowflake.connector.SnowflakeConnection:
@@ -38,3 +39,18 @@ def load_raw_messages_into_snowflake(messages):
                             VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,'')'''
         connection.cursor().executemany(insert_query, messages)
         connection.commit()
+
+
+def get_latest_extracted_ts() -> str:
+    """
+    Returns the TimeStamp of the latest extracted message
+
+    Returns:
+        str: latest message TimeStamp
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
+        select_query = '''SELECT TOP 1 MESSAGE_TIME 
+                            FROM EXTRACTED_MESSAGES 
+                            ORDER BY MESSAGE_TIME DESC;'''
+        row = connection.cursor().execute(select_query).fetchone()
+        return datetime.timestamp(row[0]) if row is not None else 0
