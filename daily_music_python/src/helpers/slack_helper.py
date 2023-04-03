@@ -1,4 +1,5 @@
 import re
+import subprocess
 
 from datetime import datetime
 
@@ -43,6 +44,26 @@ def get_spotify_id(spotify_url: str) -> str:
         return ''
 
 
+def get_original_url(attachment_url: str) -> str:
+    """If the url is shorted, it returns the whole URL.
+
+    Args:
+        attachment_url (str): shorted url
+
+    Returns:
+        str: the full url
+    """
+    if attachment_url.startswith('https://spotify.link'):
+        output = subprocess.check_output(
+            ['curl', attachment_url, '-I', '--ssl-no-revoke'])
+        headers = output.decode('utf-8').splitlines()
+        for header in headers:
+            if header.startswith('Location:'):
+                return header.split(' ')[1]
+    else:
+        return attachment_url
+
+
 def filter_songs_out(messages):
     """It filters out that type of messages what we wont upload into snowflake.
 
@@ -61,14 +82,15 @@ def filter_songs_out(messages):
         # If there is an attachment, there is a song
         for attachment in message['attachments']:
             song_data = []
+            original_url = get_original_url(attachment['original_url'])
             song_data.append(message.get('client_msg_id', None))
             song_data.append(message['user'])
             song_data.append(datetime.fromtimestamp(
                 float(message.get('ts', 0.0))).strftime('%Y-%m-%d %H:%M:%S.%f'))
             song_data.append(attachment['service_name'])
-            song_data.append(attachment['original_url'])
+            song_data.append(original_url)
             song_data.extend(clear_title(attachment['title']))
-            song_data.append(get_spotify_id(attachment['original_url']))
+            song_data.append(get_spotify_id(original_url))
             song_data.append(sum([r.get('count', 0)
                              for r in message.get('reactions', [])]))
             filtered_data.append(song_data)

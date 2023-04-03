@@ -83,10 +83,13 @@ def dummy_extract():
                 song_data = []
                 if attachment['original_url'].startswith('https://spotify.link'):
                     output = subprocess.check_output(
-                        ['curl', attachment['original_url']])
-                    print(output)
+                        ['curl', attachment['original_url'], '-I', '--ssl-no-revoke'])
+                    headers = output.decode('utf-8').splitlines()
+                    for header in headers:
+                        if header.startswith('Location:'):
+                            print(header.split(' ')[1])
 
-        return make_response(result, 200)
+        return make_response(output, 200)
     except Exception as e:
         return make_response(str(e), 500)
 
