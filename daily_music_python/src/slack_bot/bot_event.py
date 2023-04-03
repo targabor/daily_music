@@ -3,6 +3,8 @@ import os
 import logging
 import json
 import re
+import subprocess
+import time
 
 from flask import Flask, make_response, request
 from slackeventsapi import SlackEventAdapter
@@ -11,10 +13,10 @@ from src.helpers import slack_helper
 from datetime import datetime
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
-SIGNING_SECRET = os.environ['SIGNING_SECRET']
+# SIGNING_SECRET = os.environ['SIGNING_SECRET']
 
 app = Flask(__name__)
-slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
+# slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
 
 client = slack.WebClient(token=SLACK_TOKEN)
 
@@ -50,8 +52,10 @@ def status():
 def extract_data():
     """It will load all music data from #daily_music Slack channel to snowflake"""
     try:
+        latest_ts = snowflake_functions.get_latest_extracted_ts()
         channel_id = "C04UCUENRCG"
-        result = client.conversations_history(channel=channel_id, limit=100)
+        result = client.conversations_history(
+            channel=channel_id, limit=100, oldest=str(latest_ts))
         filtered_messages = slack_helper.filter_songs_out(result['messages'])
         snowflake_functions.load_raw_messages_into_snowflake(filtered_messages)
         while result['has_more']:
@@ -63,6 +67,26 @@ def extract_data():
             snowflake_functions.load_raw_messages_into_snowflake(
                 filtered_messages)
         return make_response('Extraction is done', 200)
+    except Exception as e:
+        return make_response(str(e), 500)
+
+
+@app.route('/dummy_extract', methods=['GET'])
+def dummy_extract():
+    """It will load all music data from #daily_music Slack channel to snowflake"""
+    try:
+        channel_id = "C04UCUENRCG"
+        result = client.conversations_history(
+            channel=channel_id, limit=1000)
+        for message in result['messages']:
+            for attachment in message['attachments']:
+                song_data = []
+                if attachment['original_url'].startswith('https://spotify.link'):
+                    output = subprocess.check_output(
+                        ['curl', attachment['original_url']])
+                    print(output)
+
+        return make_response(result, 200)
     except Exception as e:
         return make_response(str(e), 500)
 
