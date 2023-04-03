@@ -1,14 +1,6 @@
-import slack
-import os
 import re
 
-from src.snowflake_functions import snowflake_functions
-from src.python_logger.Logger import Logger
 from datetime import datetime
-
-SLACK_TOKEN = os.environ['SLACK_TOKEN']
-
-client = slack.WebClient(token=SLACK_TOKEN)
 
 
 def clear_title(title: str) -> tuple[str, str]:
@@ -81,19 +73,3 @@ def filter_songs_out(messages):
                              for r in message.get('reactions', [])]))
             filtered_data.append(song_data)
     return filtered_data
-
-
-def extract_data():
-    """It will load all music data from #daily_music Slack channel to snowflake (after the latest stored, to avoid duplicates)"""
-    latest_ts = snowflake_functions.get_latest_extracted_ts()
-    channel_id = "C04UCUENRCG"
-    result = client.conversations_history(
-        channel=channel_id, limit=100, oldest=str(latest_ts))
-    filtered_messages = filter_songs_out(result['messages'])
-    snowflake_functions.load_raw_messages_into_snowflake(filtered_messages)
-    while result['has_more']:
-        result = client.conversations_history(channel=channel_id,
-                                              limit=100,
-                                              cursor=result['response_metadata']['next_cursor'])
-        filtered_messages = filter_songs_out(result['messages'])
-        snowflake_functions.load_raw_messages_into_snowflake(filtered_messages)

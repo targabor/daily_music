@@ -3,6 +3,7 @@ import time
 
 from typing import TYPE_CHECKING
 from src.python_logger.Logger import Logger
+from src.helpers import string_helper
 
 
 # Place there the imports which are needed only for type checking
@@ -57,5 +58,58 @@ class SpotifyConnection:
             if self.__token_expires <= time.time():
                 print('Getting new token')
                 self.__refresh_token()
-            func(self, *args, **kwargs)
+            return func(self, *args, **kwargs)
         return inner
+
+    @check_token
+    def __get_header(self) -> dict:
+        """Returns auth header needed for web requests
+
+        Returns:
+            dict: Header with token
+        """
+        return_header = {'Authorization': f'Bearer {self.__access_token}'}
+        return return_header
+
+    @check_token
+    def get_song_id_by_name(self, title: str, artist: str) -> str:
+        """From a song title, returns it's song_id from Spotify API
+
+        Args:
+            title (str): Title of the song in str format
+            artist (str): Artist of the song in str format
+
+        Returns:
+            str: Title's ID in Spotify
+        """
+        auth_header = self.__get_header()
+        return_id = ''
+        for _ in range(2):
+            search_params = {
+                'q': f"{title} artist:{artist}",
+                'type': 'track',
+                'limit': 1
+            }
+            search_url = self.__base_url + 'search'
+            response = requests.get(
+                search_url, headers=auth_header, params=search_params, verify=False)
+
+            json_response = response.json()
+            if json_response.get('error', '' != ''):
+                raise Exception(
+                    f"{json_response['error']} - {json_response['message']}")
+
+            if json_response['tracks']['total'] == 0:
+                return_id = 'NOT_FOUND'
+            
+            if string_helper.compare_string(title, json_response['tracks']['items'][0]['name']):
+                return_id = json_response['tracks']['items'][0]['id']
+                break
+            else:
+                title, artist = artist, title
+
+        return return_id
+
+
+connection = SpotifyConnection(
+    'b2fbeaacf12d4b329a0e67000b92e356', 'ea1d1bada88b4f51b5ba7049628f4403')
