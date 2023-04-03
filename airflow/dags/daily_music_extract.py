@@ -13,13 +13,20 @@ default_args = {
 
 
 def call_slack_api():
-    response = requests.get("http://127.0.0.1:5000/status")
+    response = requests.get("http://127.0.0.1:5000/extract_data")
     print(response)
+
+
+def call_spotify_api():
+    # response = requests.get("spoty_bot_url")
+    # print(response)
+    pass
+
 
 
 with DAG(
     default_args = default_args,
-    dag_id = 'daily_music_extract_v01',
+    dag_id = 'daily_music_extract_v02',
     description = 'extract and load daily_music from slack',
     start_date = datetime(2023, 4, 2),
     schedule_interval = '@daily'
@@ -29,4 +36,10 @@ with DAG(
         python_callable = call_slack_api
     )
 
-    extract_daily_music
+    extract_spotify_data = PythonOperator(
+        task_id = 'extract_spotify_data',
+        python_callable = call_spotify_api
+    )
+
+
+    extract_daily_music >> extract_spotify_data
