@@ -10,10 +10,10 @@ from src.snowflake_functions import snowflake_functions
 from datetime import datetime
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
-SIGNING_SECRET = os.environ['SIGNING_SECRET']
+# SIGNING_SECRET = os.environ['SIGNING_SECRET']
 
 app = Flask(__name__)
-slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
+# slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
 
 client = slack.WebClient(token=SLACK_TOKEN)
 
