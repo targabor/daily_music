@@ -10,7 +10,7 @@ daily_music_python/dist
 *__pycache__
 
 # Credentials
-*/cred.ini
+**/cred.ini
 
 # Airflow
 airflow
