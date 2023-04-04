@@ -31,6 +31,7 @@ def get_id_for_youtube_songs():
     try:
         title_list = snowflake_functions.get_new_youtube_songs()
         for i in range(len(title_list)):
+            print(i)
             # Check the title column from the extracted table
             song_id = spotify_connection.get_song_id_by_name(
                 title_list[i]['title'], title_list[i]['artist'])

@@ -84,28 +84,32 @@ class SpotifyConnection:
         """
         auth_header = self.__get_header()
         return_id = ''
-        for _ in range(2):
+        for i in range(4):
+            if title == '':
+                continue
             search_params = {
-                'q': f"{title} artist:{artist}",
+                'q': (f"{title} artist:{artist}" if artist != '' and i < 1 else title),
                 'type': 'track',
                 'limit': 1
             }
+
             search_url = self.__base_url + 'search'
             response = requests.get(
                 search_url, headers=auth_header, params=search_params, verify=False)
-
             json_response = response.json()
             if json_response.get('error', '' != ''):
                 raise Exception(
                     f"{json_response['error']} - {json_response['message']}")
-
             if json_response['tracks']['total'] == 0:
                 return_id = 'NOT_FOUND'
-            
+                title, artist = artist, title
+                continue
+
             if string_helper.compare_string(title, json_response['tracks']['items'][0]['name']):
                 return_id = json_response['tracks']['items'][0]['id']
                 break
             else:
+                return_id = 'NOT FOUND'
                 title, artist = artist, title
 
         return return_id
