@@ -61,6 +61,7 @@ def get_genres_for_songs():
                 if "genres" in artist:
                     print(artist.get("genres"))
                     # check if we can get genres
+                    # if not get it from the api
         return make_response(
             'get genres function run without errors', 200)
     except AttributeError as e:

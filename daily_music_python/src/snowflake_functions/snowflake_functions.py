@@ -140,21 +140,47 @@ def log_module_run(module_name: str, status: int):
 def insert_spotify_data(track_list: list):
     """Insert Spotify data into CONSOLIDATED.spotify_track
 
-    Args:
-        track_list: list of tracks in dict format
+        Args:
+            track_list: list of tracks in dict format
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
-        update_query = f""" INSERT INTO spotify_track (track_id, artist_id, title, popularity)
+        query = f""" INSERT INTO spotify_track (track_id, artist_id, artist_name, title, popularity)
                             VALUES %s, %s, %s, %s
                         """
         cursor = connection.cursor()
-        cursor.executemany(update_query,
+        cursor.executemany(query,
                            [(track['spotify_id'],
                              track['artist_id'],
+                             track['artist_name'],
                              track['title'],
                              track['popularity']) for track in track_list])
         connection.commit()
         cursor.close()
+
+def get_all_artists():
+    """Get all artists based on spotify tracks
+
+        Returns:
+            list of all consolidated artist_ids
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        query = f""" SELECT distinct artist_id
+                            FROM spotify_track
+                        """
+        cursor = connection.cursor()
+        artists = cursor.execute(query).fetchall()
+        cursor.close()
+        return [artist[0] for artist in artists]
+
+
+def insert_artist_genres(artist_genres: list):
+    """Insert artist_id and its genres into artist_genre
+
+        Args:
+            atrist_genres: list containing pairs of artist_id and genre_name
+    """
+    pass
+
 
 
             
@@ -165,8 +191,8 @@ def get_mail_list() -> list:
         list: list of emails
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
-        select_query = 'SELECT EMAIL FROM SUBSCRIBERS;'
+        query = 'SELECT EMAIL FROM SUBSCRIBERS;'
         cursor = connection.cursor()
-        results = cursor.execute(select_query).fetchall()
+        results = cursor.execute(query).fetchall()
         return [mail[0] for mail in results]
 
