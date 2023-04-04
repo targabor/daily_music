@@ -113,6 +113,27 @@ class SpotifyConnection:
                 title, artist = artist, title
 
         return return_id
+    
+
+    @check_token
+    def get_track_data(self, spotify_id: str):
+        print('getting track data from spotify api....')
+        """get track data based on track_id from Spotify API
+
+        Args:
+            spotify_id (str): track_id of spotify song
+
+        Returns:
+            dict: spotify json response of track id
+        """
+        auth_header = self.__get_header()
+        track_url = self.__base_url + spotify_id
+        # response = requests.get(
+        #     track_url, headers=auth_header, verify=False)
+        # json_response = response.json()
+        # return json_response
+        return {}
+
 
 
 connection = SpotifyConnection(

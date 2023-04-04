@@ -96,7 +96,8 @@ def load_back_song_ids(title_list):
         cursor.close()
 
 
-def get_track_ids(from_date: str):
+def get_new_track_ids(from_date: str):
+    # todo filter out existing data
     """ 
         Returns:
             all spotify id's sent in after a specific date
@@ -135,6 +136,25 @@ def log_module_run(module_name: str, status: int):
         cursor.execute(query, (module_name, status, formatted_date))
         cursor.close()
 
+
+def insert_spotify_data(track_list: list):
+    """Insert Spotify data into CONSOLIDATED.spotify_track
+
+    Args:
+        track_list: list of tracks in dict format
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        update_query = f""" INSERT INTO spotify_track (track_id, artist_id, title, popularity)
+                            VALUES %s, %s, %s, %s
+                        """
+        cursor = connection.cursor()
+        cursor.executemany(update_query,
+                           [(track['spotify_id'],
+                             track['artist_id'],
+                             track['title'],
+                             track['popularity']) for track in track_list])
+        connection.commit()
+        cursor.close()
 
 
             
