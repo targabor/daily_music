@@ -51,8 +51,7 @@ def get_genres_for_songs():
     try:
         last_run_date = snowflake_functions.get_latest_extracted_ts()
         print(last_run_date)
-        # todo filter if track already present
-        track_id_list =  snowflake_functions.get_track_ids(last_run_date)
+        track_id_list =  snowflake_functions.get_new_track_ids(last_run_date)
         track_datas = []
         for track_id in track_id_list:
             print('track_id: ', track_id, type(track_id))

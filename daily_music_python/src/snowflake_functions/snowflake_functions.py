@@ -97,7 +97,6 @@ def load_back_song_ids(title_list):
 
 
 def get_new_track_ids(from_date: str):
-    # todo filter out existing data
     """ 
         Returns:
             all spotify id's sent in after a specific date
@@ -109,8 +108,9 @@ def get_new_track_ids(from_date: str):
     from_date = datetime.fromtimestamp(from_date)
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
         query = f""" SELECT SPOTIFY_ID
-                    FROM EXTRACTED_MESSAGES
-                    WHERE MESSAGE_TIME >= %s AND SPOTIFY_ID != 'NOT FOUND'
+                    FROM EXTRACTED_MESSAGES em
+                        LEFT JOIN CONSOLIDATED.spotify_track st on (em.spotify_id = st.track_id)
+                    WHERE MESSAGE_TIME >= %s AND SPOTIFY_ID != 'NOT FOUND' and st.track_id is null
                 """
         cursor = connection.cursor()
         track_ids = cursor.execute(query, (from_date,)).fetchall()
