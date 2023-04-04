@@ -1,16 +1,21 @@
 import logging
 import smtplib
 import ssl
+import os
 
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from flask import Flask, make_response, request
+
+from flask import Flask, make_response
 from src.snowflake_functions import snowflake_functions
+from src.helpers import email_helper
 
 app = Flask(__name__)
 
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
+
+app_password = os.environ['APP_PASSWORD']
+from_email = os.environ['FROM_EMAIL']
+image_path = os.environ['IMAGE_PATH']
 
 
 @app.route('/status', methods=['GET'])
@@ -23,21 +28,18 @@ def status():
 
 @app.route('/send_mails_out', methods=['GET'])
 def send_mails_out():
-    gunicorn_logger.warning(dir(snowflake_functions))
+    """It sends the weekly newsletter for those who subscribed to it"""
+    html_path = os.environ['HTML_PATH']
+    base_msg = email_helper.generate_template_message(
+        from_email, image_path, html_path)
     mail_list = snowflake_functions.get_mail_list()
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
-        server.login('daily.music.letter@gmail.com', 'nluubjspujndruou')
+        server.login(from_email, app_password)
         for mail in mail_list:
-            msg = MIMEMultipart()
-            msg['From'] = 'daily.music.letter@gmail.com'
-            msg['To'] = mail
-            msg['Subject'] = 'Test email from Python'
-            body = 'This is a test email sent from Python.'
-            msg.attach(MIMEText(body, 'plain'))
-            server.sendmail('daily.music.letter@gmail.com',
-                            mail, msg.as_string())
-    return make_response('OK', 200)
+            base_msg['To'] = mail
+            server.sendmail(from_email, mail, base_msg.as_string())
+    return make_response('Emails are sent', 200)
 
 
 if __name__ == "__main__":
