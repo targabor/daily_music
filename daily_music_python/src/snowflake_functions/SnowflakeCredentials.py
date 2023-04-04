@@ -36,7 +36,7 @@ class SnowflakeCredentials:
         with open('/home/ec2-user/source/daily_music/daily_music_python/src/snowflake_functions/cred.ini', 'r') as cred_in:
             for line in cred_in.readlines():
                 if line.startswith(schemaName):
-                    return_credential = SnowflakeCredentials(line)
+                    return_credential = SnowflakeCredentials(line.strip())
                     break
 
         if return_credential is not None:
