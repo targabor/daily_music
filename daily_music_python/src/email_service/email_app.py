@@ -25,8 +25,8 @@ def status():
 def send_mails_out():
     gunicorn_logger.warning(dir(snowflake_functions))
     mail_list = snowflake_functions.get_mail_list()
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=ssl.create_default_context()) as server:
-        server.starttls()
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
         server.login('daily.music.letter@gmail.com', 'nluubjspujndruou')
         for mail in mail_list:
             msg = MIMEMultipart()
