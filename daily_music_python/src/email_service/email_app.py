@@ -24,7 +24,7 @@ def status():
 @app.route('/send_mails_out', methods=['GET'])
 def send_mails_out():
     mail_list = snowflake_functions.get_mail_list()
-    with smtplib.SMTP_SSL('smtp.gmail.com', 587, context=ssl.create_default_context()) as server:
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=ssl.create_default_context()) as server:
         server.starttls()
         server.login('daily.music.letter@gmail.com', 'nluubjspujndruou')
         for mail in mail_list:
