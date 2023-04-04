@@ -93,3 +93,16 @@ def load_back_song_ids(title_list):
                            [(d['spotify_id'], d['id']) for d in title_list])
         connection.commit()
         cursor.close()
+
+
+def get_mail_list() -> list:
+    """Get back all the subscribed emails from Snowflake.
+
+    Returns:
+        list: list of emails
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        select_query = 'SELECT EMAIL FROM SUBSCRIBERS;'
+        cursor = connection.cursor()
+        results = cursor.execute(select_query).fetchall()
+        return [mail[0] for mail in results]

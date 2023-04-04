@@ -1,0 +1,11 @@
+pyproject.toml
+setup.cfg
+src/__init__.py
+src.egg-info/PKG-INFO
+src.egg-info/SOURCES.txt
+src.egg-info/dependency_links.txt
+src.egg-info/top_level.txt
+src/python_logger/Logger.py
+src/python_logger/__init__.py
+src/spotify_bot/SpotifyConnection.py
+src/spotify_bot/__init__.py
