@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: src
+Version: 0.0.1
+Summary: Package for finishing project for our Data Engineer Academy
+Author-email: Alba Nemeth-Buhin <buhina@starschema.net>, Gaor Tar <targ@starschema.net>
+Project-URL: Homepage, https://github.com/targabor/daily_music
+Project-URL: Bug Tracker, https://github.com/targabor/daily_music/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU General Public License v3.0
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown

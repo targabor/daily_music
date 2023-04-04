@@ -158,3 +158,15 @@ def insert_spotify_data(track_list: list):
 
 
             
+def get_mail_list() -> list:
+    """Get back all the subscribed emails from Snowflake.
+
+    Returns:
+        list: list of emails
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        select_query = 'SELECT EMAIL FROM SUBSCRIBERS;'
+        cursor = connection.cursor()
+        results = cursor.execute(select_query).fetchall()
+        return [mail[0] for mail in results]
+

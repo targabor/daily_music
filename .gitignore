@@ -6,8 +6,6 @@ venv
 daily_music_python/build
 daily_music_python/dist
 
-daily_music_python/src.egg-info
-
 # Pycache
 *__pycache__
 
