@@ -33,12 +33,15 @@ def send_mails_out():
     base_msg = email_helper.generate_template_message(
         from_email, image_path, html_path)
     mail_list = snowflake_functions.get_mail_list()
+    gunicorn_logger.info(mail_list)
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
         server.login(from_email, app_password)
         for mail in mail_list:
             base_msg['To'] = mail
             server.sendmail(from_email, mail, base_msg.as_string())
+            gunicorn_logger.info(f'Email sent to {mail}')
+
     return make_response('Emails are sent', 200)
 
 
