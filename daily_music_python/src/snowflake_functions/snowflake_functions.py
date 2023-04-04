@@ -50,7 +50,7 @@ def get_latest_extracted_ts() -> str:
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
         select_query = '''SELECT TOP 1 MESSAGE_TIME
-                            FROM EXTRACTED_MESSAGES
+                            FROM daily_music.extracted.EXTRACTED_MESSAGES
                             ORDER BY MESSAGE_TIME DESC;'''
         row = connection.cursor().execute(select_query).fetchone()
         return datetime.timestamp(row[0]) if row is not None else 0
@@ -93,3 +93,33 @@ def load_back_song_ids(title_list):
                            [(d['spotify_id'], d['id']) for d in title_list])
         connection.commit()
         cursor.close()
+
+
+def get_track_ids(from_date: datetime):
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
+        query = f""" SELECT SPOTIFY_ID FROM EXTRACTED_MESSAGES
+                    FROM EXTRACTED MESSAGES
+                    WHERE MESSAGE_TIME >= %s
+                """
+        cursor = connection.cursor()
+        track_ids = cursor.execute(query, from_date)
+        cursor.close()
+        return track_ids
+
+
+def log_module_run(module_name: str, status: int):
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('META')) as connection:
+        query = f""" INSERT INTO daily_music.meta.etl_run_log (module, status, run_datetime)
+                    VALUES (
+                    %s, %s, %s
+                    )
+                """
+        cursor = connection.cursor()
+        formatted_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(formatted_date)
+        cursor.execute(query, (module_name, status, formatted_date))
+        cursor.close()
+
+
+
+            
