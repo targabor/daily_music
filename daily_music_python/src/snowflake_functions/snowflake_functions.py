@@ -50,7 +50,7 @@ def get_latest_extracted_ts() -> str:
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
         select_query = '''SELECT TOP 1 MESSAGE_TIME
-                            FROM daily_music.extracted.EXTRACTED_MESSAGES
+                            FROM EXTRACTED_MESSAGES
                             ORDER BY MESSAGE_TIME DESC;'''
         row = connection.cursor().execute(select_query).fetchone()
         return datetime.timestamp(row[0]) if row is not None else 0
@@ -97,18 +97,20 @@ def load_back_song_ids(title_list):
 
 def get_track_ids(from_date: datetime):
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
-        query = f""" SELECT SPOTIFY_ID FROM EXTRACTED_MESSAGES
-                    FROM EXTRACTED MESSAGES
+        query = f""" SELECT SPOTIFY_ID
+                    FROM EXTRACTED_MESSAGES
                     WHERE MESSAGE_TIME >= %s
                 """
         cursor = connection.cursor()
-        track_ids = cursor.execute(query, from_date)
+        track_ids = cursor.execute(query, (from_date)).fetchall()
         cursor.close()
         return track_ids
 
 
 def log_module_run(module_name: str, status: int):
-    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('META')) as connection:
+    conn = SnowflakeCredentials.get_credentialsFor('META')
+    print('connection detalils:', conn.user, conn.database, conn.schema)
+    with __connect_to_snowflake(conn) as connection:
         query = f""" INSERT INTO daily_music.meta.etl_run_log (module, status, run_datetime)
                     VALUES (
                     %s, %s, %s

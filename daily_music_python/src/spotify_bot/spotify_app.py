@@ -38,18 +38,19 @@ def get_id_for_youtube_songs():
             time.sleep(0.3)
             title_list[i]['spotify_id'] = song_id
         snowflake_functions.load_back_song_ids(title_list)
-        return make_response(
+        make_response(
             'Spotify IDs loaded successfully for non Spotify songs', 200)
     except Exception as e:
-        return make_response(str(e), 500)
+        make_response(str(e), 500)
 
 
 @app.route('/get_data_for_tracks', methods=['GET'])
 def get_genres_for_songs():
     try:
         snowflake_functions.log_module_run('test', 1)
-        last_run_date = snowflake_functions.get_latest_extracted_ts()
-        track_id_list =  snowflake_functions.get_new_track_ids(last_run_date)
+        # last_run_date = snowflake_functions.get_latest_extracted_ts().strftime("%Y-%m-%d %H:%M:%S")
+        last_run_date = '2020-01-01 00:00:00'
+        track_id_list =  snowflake_functions.get_track_ids(last_run_date)
         # check if len > 50, if not, it can go out in one request
         if len(track_id_list) <= 50:
             # make api call to spotify
