@@ -48,12 +48,13 @@ def get_latest_extracted_ts() -> str:
     Returns:
         str: latest message TimeStamp
     """
-    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
-        select_query = '''SELECT TOP 1 MESSAGE_TIME
-                            FROM EXTRACTED_MESSAGES
-                            ORDER BY MESSAGE_TIME DESC;'''
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('META')) as connection:
+        select_query = '''SELECT TOP 1 run_datetime
+                            FROM etl_run_log
+                            WHERE status = 1
+                            ORDER BY run_datetime DESC;'''
         row = connection.cursor().execute(select_query).fetchone()
-        return datetime.timestamp(row[0]) if row is not None else 0
+        return datetime.timestamp(row[0]) if row is not None else None
 
 
 def get_new_youtube_songs() -> list[dict]:
@@ -95,14 +96,15 @@ def load_back_song_ids(title_list):
         cursor.close()
 
 
-def get_track_ids(from_date: datetime):
+def get_track_ids(from_date: str):
+    from_date = datetime.fromtimestamp(from_date)
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
         query = f""" SELECT SPOTIFY_ID
                     FROM EXTRACTED_MESSAGES
                     WHERE MESSAGE_TIME >= %s
                 """
         cursor = connection.cursor()
-        track_ids = cursor.execute(query, (from_date)).fetchall()
+        track_ids = cursor.execute(query, (from_date,)).fetchall()
         cursor.close()
         return track_ids
 

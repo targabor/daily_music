@@ -48,13 +48,15 @@ def get_id_for_youtube_songs():
 def get_genres_for_songs():
     try:
         snowflake_functions.log_module_run('test', 1)
-        # last_run_date = snowflake_functions.get_latest_extracted_ts().strftime("%Y-%m-%d %H:%M:%S")
-        last_run_date = '2020-01-01 00:00:00'
+        last_run_date = snowflake_functions.get_latest_extracted_ts()
+        print(last_run_date)
         track_id_list =  snowflake_functions.get_track_ids(last_run_date)
         # check if len > 50, if not, it can go out in one request
         if len(track_id_list) <= 50:
+            print('')
+            pass
             # make api call to spotify
-            track_datas = spotify_connection.get_tracks()
+            # track_datas = spotify_connection.get_tracks()
             # from here get artist info
             # go through atrists and get the relevant genre, popularity
         return make_response(
