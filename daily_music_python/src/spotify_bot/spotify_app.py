@@ -47,10 +47,10 @@ def get_id_for_youtube_songs():
 @app.route('/get_data_for_tracks', methods=['GET'])
 def get_genres_for_songs():
     try:
-        snowflake_functions.log_module_run('test', 1)
         last_run_date = snowflake_functions.get_latest_extracted_ts()
         print(last_run_date)
         track_id_list =  snowflake_functions.get_track_ids(last_run_date)
+        print(track_id_list)
         # check if len > 50, if not, it can go out in one request
         if len(track_id_list) <= 50:
             print('')
