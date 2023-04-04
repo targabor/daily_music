@@ -24,8 +24,7 @@ def generate_template_message(from_email: str, image_path: str, html_path: str):
 
     msg = MIMEMultipart()
     msg['From'] = from_email
-    msg['Subject'] = str(datetime.date.today()
-                         .isocalendar()[1]) + '. Lit Letter'
+    msg['Subject'] = str(datetime.now().isocalendar().week) + '. Lit Letter'
     with open(image_path, 'rb') as f:
         img_data = f.read()
         image = MIMEImage(img_data)
