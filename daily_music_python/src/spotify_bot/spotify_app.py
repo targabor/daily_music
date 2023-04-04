@@ -44,5 +44,27 @@ def get_id_for_youtube_songs():
         make_response(str(e), 500)
 
 
+@app.route('/get_data_for_tracks', methods=['GET'])
+def get_genres_for_songs():
+    try:
+        snowflake_functions.log_module_run('test', 1)
+        last_run_date = snowflake_functions.get_latest_extracted_ts()
+        print(last_run_date)
+        track_id_list =  snowflake_functions.get_track_ids(last_run_date)
+        # check if len > 50, if not, it can go out in one request
+        if len(track_id_list) <= 50:
+            print('')
+            pass
+            # make api call to spotify
+            # track_datas = spotify_connection.get_tracks()
+            # from here get artist info
+            # go through atrists and get the relevant genre, popularity
+        return make_response(
+            'get genres function run without errors', 200)
+    except AttributeError as e:
+        return make_response(str(e), 500)
+    
+
+
 if __name__ == "__main__":
     app.run(debug=True)
