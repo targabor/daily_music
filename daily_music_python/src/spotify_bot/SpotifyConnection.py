@@ -117,7 +117,6 @@ class SpotifyConnection:
 
     @check_token
     def get_track_data(self, spotify_id: str):
-        print('getting track data from spotify api....')
         """get track data based on track_id from Spotify API
 
         Args:
@@ -126,14 +125,31 @@ class SpotifyConnection:
         Returns:
             dict: spotify json response of track id
         """
+        Logger.info('getting track data from spotify api....')
         auth_header = self.__get_header()
-        track_url = self.__base_url + spotify_id
-        # response = requests.get(
-        #     track_url, headers=auth_header, verify=False)
-        # json_response = response.json()
-        # return json_response
-        return {}
+        track_url = self.__base_url + 'tracks/' + spotify_id
+        response = requests.get(
+            track_url, headers=auth_header, verify=False)
+        json_response = response.json()
+        return json_response
 
+    @check_token
+    def get_artist_genres(self, artist_id: str):
+        """get genres linked to artist from Spotify API
+
+        Args:
+            spotify_id (str): track_id of spotify song
+
+        Returns:
+            dict: spotify json response of track id
+        """
+        Logger.info(f'Getting genres for artist with artis_id {artist_id} from spotify api')
+        auth_header = self.__get_header()
+        track_url = self.__base_url + 'artists/' + artist_id
+        response = requests.get(
+            track_url, headers=auth_header, verify=False)
+        json_response = response.json()
+        return json_response["genres"] if "genres" in json_response else []
 
 
 connection = SpotifyConnection(
