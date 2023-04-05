@@ -35,34 +35,28 @@ def status():
 def send_mails_out():
     """It sends the weekly newsletter for those who subscribed to it"""
     html_path = os.environ['HTML_PATH']
-    gunicorn_logger.info(html_path)
-    body = ''
-    gunicorn_logger.info(html_path)
-    with codecs.open(html_path, 'r') as f:
-        body = f.read()
-
-    body = body.replace('#current_date', datetime.now().strftime('%Y-%m-%d'))
-    msg = MIMEMultipart()
-    msg['From'] = from_email
-    msg['Subject'] = str(datetime.now().isocalendar().week) + '. Lit Letter'
-    with open(image_path, 'rb') as f:
-        img_data = f.read()
-        image = MIMEImage(img_data)
-        image.add_header('Content-ID', '<image1>')
-        msg.attach(image)
-
-    gunicorn_logger.info(body)
-    msg.attach(MIMEText(body, 'html'))
     mail_list = snowflake_functions.get_mail_list()
-    gunicorn_logger.info(mail_list)
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
         server.login(from_email, app_password)
-        for mail in mail_list:
-            server.sendmail(from_email, mail, msg.as_string())
+        for mail, id in mail_list:
+            message = email_helper.generate_template_message(
+                from_email, image_path, html_path, id)
+            server.sendmail(from_email, mail, message.as_string())
             gunicorn_logger.info(f'Email sent to {mail}')
 
     return make_response('Emails are sent', 200)
+
+
+@app.route('/leave_crew/<email_id>')
+def leave_crew(email_id):
+    """With this endpoint it is possible to leave the newsletter
+
+    Args:
+        email_id (str): the id of the email address
+    """
+    snowflake_functions.delete_email_address(email_id)
+    return make_response('You are deleted from the mailing list. :( )', 200)
 
 
 if __name__ == "__main__":

@@ -120,13 +120,10 @@ def log_module_run(module_name: str, status: int):
                 """
         cursor = connection.cursor()
         formatted_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(formatted_date)
         cursor.execute(query, (module_name, status, formatted_date))
         cursor.close()
 
 
-
-            
 def get_mail_list() -> list:
     """Get back all the subscribed emails from Snowflake.
 
@@ -134,8 +131,20 @@ def get_mail_list() -> list:
         list: list of emails
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
-        select_query = 'SELECT EMAIL FROM SUBSCRIBERS;'
+        select_query = 'SELECT EMAIL, ID FROM SUBSCRIBERS;'
         cursor = connection.cursor()
         results = cursor.execute(select_query).fetchall()
-        return [mail[0] for mail in results]
+        return [(mail[0], mail[1]) for mail in results]
 
+
+def delete_email_address(email_id):
+    """It deletes the record from the lettering list
+
+    Args:
+        email_id (str): hashed, unique ID of the email address
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        delete_query = 'DELETE FROM SUBSCRIBERS WHERE ID = %s'
+        del_cursor = connection.cursor()
+        del_cursor.execute(delete_query, email_id)
+        connection.commit()
