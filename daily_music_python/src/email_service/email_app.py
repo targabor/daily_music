@@ -41,8 +41,7 @@ def send_mails_out():
     with codecs.open(html_path, 'r') as f:
         body = f.read()
 
-    gunicorn_logger.info(body)
-    body.replace('#current_date', datetime.now().strftime('%Y-%m-%d'))
+    body = body.replace('#current_date', datetime.now().strftime('%Y-%m-%d'))
     msg = MIMEMultipart()
     msg['From'] = from_email
     msg['Subject'] = str(datetime.now().isocalendar().week) + '. Lit Letter'
@@ -52,6 +51,7 @@ def send_mails_out():
         image.add_header('Content-ID', '<image1>')
         msg.attach(image)
 
+    gunicorn_logger.info(body)
     msg.attach(MIMEText(body, 'html'))
     mail_list = snowflake_functions.get_mail_list()
     gunicorn_logger.info(mail_list)
