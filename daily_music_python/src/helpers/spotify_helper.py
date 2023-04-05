@@ -19,26 +19,42 @@ def clean_track_data(track: dict):
         if "genres" in artist:
             track_artist["genres"] = [genre for genre in artist["genres"]]
         res.append(track_artist)
-    else:
+    if len(res) == 0:
         res.append(track_artist)
 
     return res
 
 
-def make_genre_to_artist_pairs(artist_genres: list):
+def get_new_artists(artists: list, new_artists: set):
+    return [a for a in new_artists if a not in artists]
+
+
+def get_new_genres(genre: list, new_genres: set):
+    return [g for g in new_genres if g not in genre]
+
+def make_genre_to_artist_pairs(artist_id: str, genres: list):
     """ Creates pairs for matching table for artists and its genres
 
         Returns:
-            List of two element list:
-                e.g.: [[atrist_id1, genre_id1], [[atrist_id1, genre_id2]]
+            List of tuples with artist and genre:
+                e.g.: [(atrist_id1, genre_id1), (atrist_id1, genre_id2)]
 
         Args:
-            atrist_genres: list containing dict in format [{artist_id: artist_id, genres: [genre1, genre2...]}, ...]
+            atrist_id: spotify artis_id
+            genres: list of genres artist is associated with
     """
     res = []
-    for artist in artist_genres:
-        for genre in artist["genres"]:
-            res.append[artist["artist_id"]]
-            res.append(genre)
+    for genre in genres:
+        res.append((artist_id, genre))
     return res
-                
+
+
+def tuple_pairs_to_dict(genres: list):
+    """ Converts a list of genre tuples to a dictionary
+
+        Returns:
+            Dictionary with the tuples first item as key and second as its value
+        Args:
+            genres: list of tuples containing two elements
+    """
+    return {name: id for (name, id) in genres}
