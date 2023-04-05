@@ -33,7 +33,7 @@ class SnowflakeCredentials:
             SnowflakeCredentials: It contains all the necessary data to access the given schema in Snowflake.
         """
         return_credential = None
-        with open('/home/ec2-user/source/daily_music/daily_music_python/src/snowflake_functions/cred.ini', 'r') as cred_in:
+        with open('C:\\Users\\alba.nemethbuhin\\Projects\\daily_music\\daily_music_python\\src\\snowflake_functions\\cred.ini', 'r') as cred_in:
             for line in cred_in.readlines():
                 if line.startswith(schemaName):
                     return_credential = SnowflakeCredentials(line.strip())

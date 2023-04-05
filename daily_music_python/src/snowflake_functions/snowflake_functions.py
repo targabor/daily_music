@@ -146,7 +146,7 @@ def insert_spotify_data(track_list: list):
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
         query = f""" INSERT INTO spotify_track (track_id, artist_id, artist_name, title, popularity)
-                            VALUES %s, %s, %s, %s
+                            VALUES (%s, %s, %s, %s, %s)
                         """
         cursor = connection.cursor()
         cursor.executemany(query,
@@ -181,6 +181,15 @@ def insert_artist_genres(artist_genres: list):
             atrist_genres: list containing tuples: pairs of artist_id and genre_name
                 e.g. [(artis1, genre1), (artist1, genre2), ...]
     """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        query = f""" INSERT INTO artist_genre (artist_id, genre_id)
+                            VALUES (%s, %s)
+                        """
+        cursor = connection.cursor()
+        cursor.executemany(query,
+                           artist_genres)
+        connection.commit()
+        cursor.close()
     
 
 
@@ -197,6 +206,7 @@ def get_all_genres():
 
 
 def insert_genres(genres: list):
+    print(f'genres to insert: {genres}')
     """Inserts genres into genre table
 
         Args:

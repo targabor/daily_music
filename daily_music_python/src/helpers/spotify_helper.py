@@ -57,4 +57,4 @@ def tuple_pairs_to_dict(genres: list):
         Args:
             genres: list of tuples containing two elements
     """
-    return {name: id for (name, id) in genres}
+    return {name: id for (id, name) in genres}

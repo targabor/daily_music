@@ -53,15 +53,42 @@ def get_genres_for_songs():
         print(last_run_date)
         track_id_list =  snowflake_functions.get_new_track_ids(last_run_date)
         track_datas = []
+
         for track_id in track_id_list:
             print('track_id: ', track_id, type(track_id))
+
+            # get track data from spotify and convert it to a format to ease insertion into snowflake
             spotify_track_data = spotify_connection.get_track_data(track_id)
-            track_datas.extend(spotify_helper.clean_track_data(spotify_track_data))
-            for artist in spotify_track_data.get("artists"):
-                if "genres" in artist:
-                    print(artist.get("genres"))
-                    # check if we can get genres
-                    # if not get it from the api
+            #print("spotify_track_data: " + str(spotify_track_data))
+            track_data = spotify_helper.clean_track_data(spotify_track_data)
+            print(track_data)
+            track_datas.extend(track_data)
+            
+            new_artist_ids = spotify_helper.get_new_artists(snowflake_functions.get_all_artists(), set([track["artist_id"] for track in track_data]))
+            
+            # initialize list to append artis - genre name information to
+            artists_genres = []
+
+            existing_genres = [genre[1] for genre in snowflake_functions.get_all_genres()]
+            for new_artist_id in new_artist_ids:
+
+                genres = spotify_connection.get_artist_genres(new_artist_id)
+                new_genres = spotify_helper.get_new_genres(existing_genres, genres)
+                print(f'\n\n------{new_genres}')
+                # insert new genres into snowflake
+                if len(new_genres) != 0:
+                    snowflake_functions.insert_genres(new_genres)
+                    existing_genres.extend(new_genres)
+                
+                artist_genres = spotify_helper.make_genre_to_artist_pairs(new_artist_id, genres)
+                artists_genres.extend(artist_genres)
+            print(f"artist-genrename {artists_genres}")
+            all_genres = spotify_helper.tuple_pairs_to_dict(snowflake_functions.get_all_genres())
+        
+            artists_genres = [(artist, all_genres[genre]) for artist, genre in artists_genres]
+            print(artist_genres)
+            snowflake_functions.insert_artist_genres(artists_genres)
+        snowflake_functions.insert_spotify_data(track_datas)
         return make_response(
             'get genres function run without errors', 200)
     except AttributeError as e:
