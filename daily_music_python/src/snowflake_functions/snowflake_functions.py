@@ -115,7 +115,7 @@ def get_new_track_ids(from_date: str):
         cursor = connection.cursor()
         track_ids = cursor.execute(query, (from_date,)).fetchall()
         cursor.close()
-        return [track_id[0] for track_id in track_ids]
+        return [track_id[0] for track_id in track_ids] if track_ids is not None else []
 
 
 def log_module_run(module_name: str, status: int):
@@ -134,6 +134,7 @@ def log_module_run(module_name: str, status: int):
         cursor = connection.cursor()
         formatted_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute(query, (module_name, status, formatted_date))
+        connection.commit()
         cursor.close()
 
 
@@ -170,20 +171,47 @@ def get_all_artists():
         cursor = connection.cursor()
         artists = cursor.execute(query).fetchall()
         cursor.close()
-        return [artist[0] for artist in artists]
+        return [artist[0] for artist in artists] if artists is not None else []
 
 
 def insert_artist_genres(artist_genres: list):
     """Insert artist_id and its genres into artist_genre
 
         Args:
-            atrist_genres: list containing pairs of artist_id and genre_name
+            atrist_genres: list containing tuples: pairs of artist_id and genre_name
+                e.g. [(artis1, genre1), (artist1, genre2), ...]
     """
-    pass
+    
 
 
 
-            
+def get_all_genres():
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        query = f""" SELECT id, name
+                            FROM genre
+                        """
+        cursor = connection.cursor()
+        genres = cursor.execute(query).fetchall()
+        cursor.close()
+        return genres
+
+
+def insert_genres(genres: list):
+    """Inserts genres into genre table
+
+        Args:
+            genres: list of genre names
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        query = f""" INSERT INTO genre (name)
+                        VALUES (%s)
+                        """
+        cursor = connection.cursor()
+        genres = cursor.executemany(query, genres).fetchall()
+        cursor.close()
+        return genres
+
+
 def get_mail_list() -> list:
     """Get back all the subscribed emails from Snowflake.
 
@@ -191,8 +219,8 @@ def get_mail_list() -> list:
         list: list of emails
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
-        query = 'SELECT EMAIL FROM SUBSCRIBERS;'
+        select_query = 'SELECT EMAIL FROM SUBSCRIBERS;'
         cursor = connection.cursor()
-        results = cursor.execute(query).fetchall()
-        return [mail[0] for mail in results]
+        results = cursor.execute(select_query).fetchall()
+        return [mail[0] for mail in results] if results is not None else []
 
