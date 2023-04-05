@@ -38,7 +38,6 @@ def send_mails_out():
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
         server.login(from_email, app_password)
         for mail in mail_list:
-            base_msg['To'] = mail
             server.sendmail(from_email, mail, base_msg.as_string())
             gunicorn_logger.info(f'Email sent to {mail}')
 
