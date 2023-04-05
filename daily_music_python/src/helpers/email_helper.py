@@ -21,7 +21,7 @@ def generate_template_message(from_email: str, image_path: str, html_path: str):
     with codecs.open(html_path, 'r') as f:
         body = f.read()
 
-    body.replace('#current_date', datetime.now().strftime('%Y-%m-%d'))
+    # body.replace('#current_date', datetime.now().strftime('%Y-%m-%d'))
     msg = MIMEMultipart()
     msg['From'] = from_email
     msg['Subject'] = str(datetime.now().isocalendar().week) + '. Lit Letter'
