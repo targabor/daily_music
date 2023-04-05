@@ -18,9 +18,11 @@ def generate_template_message(from_email: str, image_path: str, html_path: str):
         _type_: _description_
     """
     body = ''
+    print(html_path)
     with codecs.open(html_path, 'r') as f:
         body = f.read()
 
+    print(body)
     # body.replace('#current_date', datetime.now().strftime('%Y-%m-%d'))
     msg = MIMEMultipart()
     msg['From'] = from_email
