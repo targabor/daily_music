@@ -54,7 +54,7 @@ def status():
 def extract_data():
     """It will load all music data from #daily_music Slack channel to snowflake"""
     try:
-        latest_ts = snowflake_functions.get_latest_extracted_ts(SLACK_MODULE_NAME)
+        latest_ts = snowflake_functions.get_latest_extraction_ts()
         channel_id = "C04UCUENRCG"
         result = client.conversations_history(
             channel=channel_id, limit=100, oldest=str(latest_ts))
