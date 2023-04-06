@@ -1,5 +1,6 @@
 # Packages
 daily_music_python/env
+venv
 
 # 
 daily_music_python/build
@@ -9,4 +10,7 @@ daily_music_python/dist
 *__pycache__
 
 # Credentials
-*/cred.ini
+**/cred.ini
+
+# Airflow
+airflow

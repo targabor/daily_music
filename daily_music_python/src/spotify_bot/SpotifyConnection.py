@@ -113,6 +113,64 @@ class SpotifyConnection:
                 title, artist = artist, title
 
         return return_id
+    
+
+    @check_token
+    def get_track_data(self, spotify_id: str):
+        """get track data based on track_id from Spotify API
+
+        Args:
+            spotify_id (str): track_id of spotify song
+
+        Returns:
+            dict: spotify json response of track id
+        """
+        Logger.info('getting track data from spotify api....')
+        auth_header = self.__get_header()
+        track_url = self.__base_url + 'tracks/' + spotify_id
+        response = requests.get(
+            track_url, headers=auth_header, verify=False)
+        json_response = response.json()
+        return json_response
+
+    @check_token
+    def get_artist_genres(self, artist_id: str):
+        """get genres linked to artist from Spotify API
+
+        Args:
+            spotify_id (str): track_id of spotify song
+
+        Returns:
+            dict: spotify json response of track id
+        """
+        Logger.info(f'Getting genres for artist with artis_id {artist_id} from spotify api')
+        auth_header = self.__get_header()
+        track_url = self.__base_url + 'artists/' + artist_id
+        response = requests.get(
+            track_url, headers=auth_header, verify=False)
+        json_response = response.json()
+        return json_response["genres"] if "genres" in json_response else []
+
+
+    @check_token
+    def get_artist_datas(self, artist_batch):
+        """get artists from Spotify API
+
+        Args:
+            artist_batch (lst): list of artist_ids
+
+        Returns:
+            list: list of dict
+        """
+        Logger.info(f'Getting artist data from spotify api')
+        auth_header = self.__get_header()
+        artist_url = self.__base_url + 'artists'
+        params = {'ids': ",".join(artist_batch)}
+        response = requests.get(
+            artist_url, params=params, headers=auth_header, verify=False)
+        json_response = response.json()
+        print('response', json_response)
+        return json_response['artists']
 
 
 connection = SpotifyConnection(
