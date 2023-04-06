@@ -43,6 +43,7 @@ def get_id_for_youtube_songs():
                 title_list[i]['title'], title_list[i]['artist'])
             time.sleep(0.3)
             title_list[i]['spotify_id'] = song_id
+            print(title_list[i])
         snowflake_functions.load_back_song_ids(title_list)
         return make_response(
             'Spotify IDs loaded successfully for non Spotify songs', 200)
@@ -61,7 +62,7 @@ def get_data_for_tracks():
             print('track_id: ', track_id, type(track_id))
             # get track data from spotify and convert it to a format to ease insertion into snowflake
             spotify_track_data = spotify_connection.get_track_data(track_id)
-            print("spotify_track_data: " + str(spotify_track_data))
+            #print("spotify_track_data: " + str(spotify_track_data))
             track_data = spotify_helper.clean_track_data(spotify_track_data)
             print(track_data)
             track_datas.extend(track_data)
