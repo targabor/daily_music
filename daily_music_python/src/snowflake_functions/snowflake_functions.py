@@ -41,7 +41,7 @@ def load_raw_messages_into_snowflake(messages):
         connection.commit()
 
 
-def get_latest_extracted_ts() -> str:
+def get_latest_extracted_ts(module) -> str:
     """
     Returns the TimeStamp of the latest extracted message
 
@@ -51,9 +51,9 @@ def get_latest_extracted_ts() -> str:
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('META')) as connection:
         select_query = '''SELECT TOP 1 run_datetime
                             FROM etl_run_log
-                            WHERE status = 1
+                            WHERE status = 1 and module = %s
                             ORDER BY run_datetime DESC;'''
-        row = connection.cursor().execute(select_query).fetchone()
+        row = connection.cursor().execute(select_query, module).fetchone()
         return datetime.timestamp(row[0]) if row is not None else 0
 
 
