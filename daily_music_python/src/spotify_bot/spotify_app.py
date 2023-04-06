@@ -72,25 +72,26 @@ def get_data_for_tracks():
 def get_data_for_artists():
     try:
         new_artist_ids = snowflake_functions.get_new_artist_ids()
-        print('new_artist_ids', new_artist_ids)
+        if len(new_artist_ids) == 0:
+            return make_response(
+            'no new artists to process', 200)
         new_artist_data = []
+        # process artist data in batch and add it to a list
         slice_50 = slice(min(50, len(new_artist_ids)))
         artist_batch = new_artist_ids[slice_50]
         del(new_artist_ids[slice_50])
         while len(artist_batch) > 0:
-            print('artist_batch', artist_batch)
             new_artist_data.extend(spotify_connection.get_artist_datas(artist_batch))
             slice_50 = slice(min(50, len(new_artist_ids)))
             artist_batch = new_artist_ids[slice_50]
             del(new_artist_ids[slice_50])
-            
-        print(new_artist_data)
+        
         snowflake_functions.insert_artists(new_artist_data)
-        # checko for length 
+        # checko for length
         insert_new_genres(new_artist_data)
         match_artist_genres(new_artist_data)
         return make_response(
-            'get genres function run without errors', 200)
+            'processed new artists', 200)
     except AttributeError as e:
         return make_response(str(e), 500)
     
@@ -103,7 +104,8 @@ def insert_new_genres(new_artist_data):
     genres_lst = [artist['genres'] for artist in new_artist_data]
     genres_set = set(itertools.chain.from_iterable(genres_lst))
     new_genres = [a for a in genres_set if a not in existing_genres]
-    snowflake_functions.insert_genres(new_genres)
+    if len(new_genres) != 0:
+        snowflake_functions.insert_genres(new_genres)
 
 
 def match_artist_genres(new_artist_data):
