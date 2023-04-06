@@ -3,6 +3,7 @@ import os
 import time
 import itertools
 from src.helpers import spotify_helper
+import traceback
 
 from flask import Flask, make_response, request
 from src.spotify_bot.SpotifyConnection import SpotifyConnection
@@ -60,7 +61,7 @@ def get_data_for_tracks():
             print('track_id: ', track_id, type(track_id))
             # get track data from spotify and convert it to a format to ease insertion into snowflake
             spotify_track_data = spotify_connection.get_track_data(track_id)
-            #print("spotify_track_data: " + str(spotify_track_data))
+            print("spotify_track_data: " + str(spotify_track_data))
             track_data = spotify_helper.clean_track_data(spotify_track_data)
             print(track_data)
             track_datas.extend(track_data)
@@ -68,6 +69,7 @@ def get_data_for_tracks():
         snowflake_functions.log_module_run(TRACK_MODULE_NAME, 1)
         return make_response('inserted spotify_tracks', 200)
     except Exception as e:
+        print(traceback.format_exc())
         snowflake_functions.log_module_run(TRACK_MODULE_NAME, 0)
         return(str(e), 500)
 
