@@ -110,7 +110,7 @@ def get_new_track_ids(from_date: str):
         query = f""" SELECT SPOTIFY_ID
                     FROM EXTRACTED_MESSAGES em
                         LEFT JOIN CONSOLIDATED.spotify_track st on (em.spotify_id = st.track_id)
-                    WHERE MESSAGE_TIME >= %s AND SPOTIFY_ID != 'NOT FOUND' and st.track_id is null
+                    WHERE MESSAGE_TIME >= %s AND SPOTIFY_ID != 'NOT FOUND' and em.SPOTIFY_ID != '' and st.track_id is null
                 """
         cursor = connection.cursor()
         track_ids = cursor.execute(query, (from_date,)).fetchall()
