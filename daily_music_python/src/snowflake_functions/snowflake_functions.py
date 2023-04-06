@@ -132,7 +132,7 @@ def log_module_run(module_name: str, status: int):
                     )
                 """
         cursor = connection.cursor()
-        formatted_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        formatted_date = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute(query, (module_name, status, formatted_date))
         connection.commit()
         cursor.close()
