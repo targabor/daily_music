@@ -15,9 +15,6 @@ def clean_track_data(track: dict):
     
     for artist in track["artists"]:
         track_artist["artist_id"] = artist["id"]
-        track_artist["artist_name"] = artist["name"]
-        if "genres" in artist:
-            track_artist["genres"] = [genre for genre in artist["genres"]]
         res.append(track_artist)
     if len(res) == 0:
         res.append(track_artist)
@@ -32,7 +29,7 @@ def get_new_artists(artists: list, new_artists: set):
 def get_new_genres(genre: list, new_genres: set):
     return [g for g in new_genres if g not in genre]
 
-def make_genre_to_artist_pairs(artist_id: str, genres: list):
+def make_genre_to_artist_pairs(artist_id: str, genres: list, genres_dict):
     """ Creates pairs for matching table for artists and its genres
 
         Returns:
@@ -45,7 +42,7 @@ def make_genre_to_artist_pairs(artist_id: str, genres: list):
     """
     res = []
     for genre in genres:
-        res.append((artist_id, genre))
+        res.append((artist_id, genres_dict[genre]))
     return res
 
 
@@ -58,3 +55,4 @@ def tuple_pairs_to_dict(genres: list):
             genres: list of tuples containing two elements
     """
     return {name: id for (id, name) in genres}
+

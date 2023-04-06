@@ -152,5 +152,26 @@ class SpotifyConnection:
         return json_response["genres"] if "genres" in json_response else []
 
 
+    @check_token
+    def get_artist_datas(self, artist_batch):
+        """get artists from Spotify API
+
+        Args:
+            artist_batch (lst): list of artist_ids
+
+        Returns:
+            list: list of dict
+        """
+        Logger.info(f'Getting artist data from spotify api')
+        auth_header = self.__get_header()
+        artist_url = self.__base_url + 'artists'
+        params = {'ids': ",".join(artist_batch)}
+        response = requests.get(
+            artist_url, params=params, headers=auth_header, verify=False)
+        json_response = response.json()
+        print('response', json_response)
+        return json_response['artists']
+
+
 connection = SpotifyConnection(
     'b2fbeaacf12d4b329a0e67000b92e356', 'ea1d1bada88b4f51b5ba7049628f4403')

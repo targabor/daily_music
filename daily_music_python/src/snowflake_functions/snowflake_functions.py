@@ -145,18 +145,56 @@ def insert_spotify_data(track_list: list):
             track_list: list of tracks in dict format
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
-        query = f""" INSERT INTO spotify_track (track_id, artist_id, artist_name, title, popularity)
-                            VALUES (%s, %s, %s, %s, %s)
+        query = f""" INSERT INTO spotify_track (track_id, artist_id, title, popularity)
+                            VALUES (%s, %s, %s, %s)
                         """
         cursor = connection.cursor()
         cursor.executemany(query,
                            [(track['spotify_id'],
                              track['artist_id'],
-                             track['artist_name'],
                              track['title'],
                              track['popularity']) for track in track_list])
         connection.commit()
         cursor.close()
+
+
+def insert_artists(artist_data: list):
+    """Insert Artist data into CONSOLIDATED.artist
+
+        Args:
+        artist_data: list of artists in dict format
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        query = f""" INSERT INTO artist (id, name, popularity)
+                    VALUES (%s, %s, %s)
+                """
+        cursor = connection.cursor()
+        cursor.executemany(query,
+                    [(artist['id'],
+                        artist['name'],
+                        artist['popularity'])
+                          for artist in artist_data])
+        connection.commit()
+        cursor.close()
+
+
+def get_new_artist_ids():
+    """Get all new artists
+
+        Returns:
+            list of new artist_ids
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        query = f""" SELECT distinct artist_id
+                            FROM spotify_track s
+                            LEFT JOIN artist a on s.artist_id = a.id
+                            WHERE a.id is null
+                        """
+        cursor = connection.cursor()
+        artists = cursor.execute(query).fetchall()
+        cursor.close()
+        return [artist[0] for artist in artists] if artists is not None else []
+
 
 def get_all_artists():
     """Get all artists based on spotify tracks
