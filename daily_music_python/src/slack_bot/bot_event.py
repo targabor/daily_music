@@ -23,6 +23,8 @@ client = slack.WebClient(token=SLACK_TOKEN)
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 
+SLACK_MODULE_NAME = 'slack_processing'
+
 
 @app.route('/slack_challenge', methods=["POST"])
 def hello_slack():
@@ -52,7 +54,7 @@ def status():
 def extract_data():
     """It will load all music data from #daily_music Slack channel to snowflake"""
     try:
-        latest_ts = snowflake_functions.get_latest_extracted_ts()
+        latest_ts = snowflake_functions.get_latest_extracted_ts(SLACK_MODULE_NAME)
         channel_id = "C04UCUENRCG"
         result = client.conversations_history(
             channel=channel_id, limit=100, oldest=str(latest_ts))
@@ -66,8 +68,10 @@ def extract_data():
                 result['messages'])
             snowflake_functions.load_raw_messages_into_snowflake(
                 filtered_messages)
+        snowflake_functions.log_module_run(SLACK_MODULE_NAME, 1)
         return make_response('Extraction is done', 200)
     except Exception as e:
+        snowflake_functions.log_module_run(SLACK_MODULE_NAME, 0)
         return make_response(str(e), 500)
 
 
