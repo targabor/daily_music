@@ -267,8 +267,20 @@ def get_mail_list() -> list:
         list: list of emails
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
-        select_query = 'SELECT EMAIL FROM SUBSCRIBERS;'
+        select_query = 'SELECT EMAIL, ID FROM SUBSCRIBERS;'
         cursor = connection.cursor()
         results = cursor.execute(select_query).fetchall()
         return [mail[0] for mail in results] if results is not None else []
 
+
+def delete_email_address(email_id):
+    """It deletes the record from the lettering list
+
+    Args:
+        email_id (str): hashed, unique ID of the email address
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
+        delete_query = 'DELETE FROM SUBSCRIBERS WHERE ID = %s'
+        del_cursor = connection.cursor()
+        del_cursor.execute(delete_query, email_id)
+        connection.commit()
