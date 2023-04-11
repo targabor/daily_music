@@ -68,6 +68,19 @@ def get_latest_extraction_ts() -> str:
         return datetime.timestamp(row[0]) if row is not None else 0 
 
 
+def get_latest_extraction_ts() -> str:
+    """
+    Returns the TimeStamp of the latest extracted message
+
+    Returns:
+        str: latest message TimeStamp
+    """
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('META')) as connection:
+        select_query = '''SELECT MAX(MESSAGE_TIME) FROM EXTRACTED_MESSAGES;;'''
+        row = connection.cursor().execute(select_query).fetchone()
+        return datetime.timestamp(row[0]) if row is not None else 0
+
+
 def get_new_youtube_songs() -> list[dict]:
     """This function returns all of that newly extracted songs, that came from YouTube.
 
@@ -118,10 +131,10 @@ def get_new_track_ids(from_date: str):
     print('from_date:', from_date)
     from_date = datetime.fromtimestamp(from_date)
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
-        query = f""" SELECT SPOTIFY_ID
+        query = f""" SELECT DISTINCT SPOTIFY_ID
                     FROM EXTRACTED_MESSAGES em
                         LEFT JOIN CONSOLIDATED.spotify_track st on (em.spotify_id = st.track_id)
-                    WHERE MESSAGE_TIME >= %s AND SPOTIFY_ID != 'NOT FOUND' and st.track_id is null
+                    WHERE MESSAGE_TIME >= %s AND SPOTIFY_ID != 'NOT FOUND' and em.SPOTIFY_ID != '' and st.track_id is null
                 """
         cursor = connection.cursor()
         track_ids = cursor.execute(query, (from_date,)).fetchall()
@@ -143,7 +156,7 @@ def log_module_run(module_name: str, status: int):
                     )
                 """
         cursor = connection.cursor()
-        formatted_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        formatted_date = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute(query, (module_name, status, formatted_date))
         connection.commit()
         cursor.close()
@@ -181,10 +194,10 @@ def insert_artists(artist_data: list):
                 """
         cursor = connection.cursor()
         cursor.executemany(query,
-                    [(artist['id'],
-                        artist['name'],
-                        artist['popularity'])
-                          for artist in artist_data])
+                           [(artist['id'],
+                             artist['name'],
+                             artist['popularity'])
+                            for artist in artist_data])
         connection.commit()
         cursor.close()
 
@@ -239,8 +252,6 @@ def insert_artist_genres(artist_genres: list):
                            artist_genres)
         connection.commit()
         cursor.close()
-    
-
 
 
 def get_all_genres():

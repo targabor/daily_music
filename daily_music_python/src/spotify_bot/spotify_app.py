@@ -3,6 +3,7 @@ import os
 import time
 import itertools
 from src.helpers import spotify_helper
+import traceback
 
 from flask import Flask, make_response, request
 from src.spotify_bot.SpotifyConnection import SpotifyConnection
@@ -42,6 +43,7 @@ def get_id_for_youtube_songs():
                 title_list[i]['title'], title_list[i]['artist'])
             time.sleep(0.3)
             title_list[i]['spotify_id'] = song_id
+            print(title_list[i])
         snowflake_functions.load_back_song_ids(title_list)
         return make_response(
             'Spotify IDs loaded successfully for non Spotify songs', 200)
@@ -77,6 +79,7 @@ def get_data_for_tracks():
         snowflake_functions.log_module_run(TRACK_MODULE_NAME, 1)
         return make_response('inserted spotify_tracks', 200)
     except Exception as e:
+        print(traceback.format_exc())
         snowflake_functions.log_module_run(TRACK_MODULE_NAME, 0)
         return(str(e), 500)
 

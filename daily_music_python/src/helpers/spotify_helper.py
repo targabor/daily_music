@@ -15,7 +15,7 @@ def clean_track_data(track: dict):
     
     for artist in track["artists"]:
         track_artist["artist_id"] = artist["id"]
-        res.append(track_artist)
+        res.append(track_artist.copy())
     if len(res) == 0:
         res.append(track_artist)
 
