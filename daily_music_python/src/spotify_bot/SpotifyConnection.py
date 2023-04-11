@@ -84,36 +84,36 @@ class SpotifyConnection:
         """
         auth_header = self.__get_header()
         return_id = ''
-        for i in range(4):
-            if title == '':
-                continue
-            search_params = {
-                'q': (f"{title} artist:{artist}" if artist != '' and i < 1 else title),
-                'type': 'track',
-                'limit': 1
-            }
+        while title != '' and artist != '':
+            for i in range(4):
+                if title == '':
+                    continue
+                search_params = {
+                    'q': (f"{title} artist:{artist}" if artist != '' and i < 1 else title),
+                    'type': 'track',
+                    'limit': 1
+                }
 
-            search_url = self.__base_url + 'search'
-            response = requests.get(
-                search_url, headers=auth_header, params=search_params, verify=False)
-            json_response = response.json()
-            if json_response.get('error', '' != ''):
-                raise Exception(
-                    f"{json_response['error']} - {json_response['message']}")
-            if json_response['tracks']['total'] == 0:
-                return_id = 'NOT_FOUND'
-                title, artist = artist, title
-                continue
+                search_url = self.__base_url + 'search'
+                response = requests.get(
+                    search_url, headers=auth_header, params=search_params, verify=False)
+                json_response = response.json()
+                if json_response.get('error', '' != ''):
+                    raise Exception(
+                        f"{json_response['error']} - {json_response['message']}")
+                if json_response['tracks']['total'] == 0:
+                    return_id = 'NOT_FOUND'
+                    title, artist = artist, title
+                    continue
 
-            if string_helper.compare_string(title, json_response['tracks']['items'][0]['name']):
-                return_id = json_response['tracks']['items'][0]['id']
-                break
-            else:
-                return_id = 'NOT FOUND'
-                title, artist = artist, title
-
+                if string_helper.compare_string(title, json_response['tracks']['items'][0]['name']):
+                    return_id = json_response['tracks']['items'][0]['id']
+                    break
+                else:
+                    return_id = 'NOT FOUND'
+                    title, artist = artist, title
+            title, artist = artist[:-1], title
         return return_id
-    
 
     @check_token
     def get_track_data(self, spotify_id: str):
@@ -143,14 +143,14 @@ class SpotifyConnection:
         Returns:
             dict: spotify json response of track id
         """
-        Logger.info(f'Getting genres for artist with artis_id {artist_id} from spotify api')
+        Logger.info(
+            f'Getting genres for artist with artis_id {artist_id} from spotify api')
         auth_header = self.__get_header()
         track_url = self.__base_url + 'artists/' + artist_id
         response = requests.get(
             track_url, headers=auth_header, verify=False)
         json_response = response.json()
         return json_response["genres"] if "genres" in json_response else []
-
 
     @check_token
     def get_artist_datas(self, artist_batch):
