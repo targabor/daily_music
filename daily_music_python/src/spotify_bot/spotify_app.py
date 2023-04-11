@@ -63,14 +63,17 @@ def get_data_for_tracks():
         slice_50 = slice(min(50, len(track_id_list)))
         track_batch = track_id_list[slice_50]
         del(track_id_list[slice_50])
-        while len(track_batch) > 50:
-            track_datas.extend(spotify_connection.get_track_data_batch(track_batch))
-
+        while len(track_batch) > 0:
+            track_datas.extend(spotify_connection.get_several_tracks(track_batch))
+            slice_50 = slice(min(50, len(track_id_list)))
+            track_batch = track_id_list[slice_50]
+            del(track_id_list[slice_50])
         # clean track data
-        for i, track in enumerate(track_datas):
-            track_datas[i] = spotify_helper.clean_track_data(track)
+        clean_track_datas = []
+        for track in track_datas:
+            clean_track_datas.extend(spotify_helper.clean_track_data(track))
         
-        snowflake_functions.insert_spotify_data(track_datas)
+        snowflake_functions.insert_spotify_data(clean_track_datas)
         snowflake_functions.log_module_run(TRACK_MODULE_NAME, 1)
         return make_response('inserted spotify_tracks', 200)
     except Exception as e:
