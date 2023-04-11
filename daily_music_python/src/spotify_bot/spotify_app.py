@@ -65,16 +65,11 @@ def get_data_for_tracks():
         del(track_id_list[slice_50])
         while len(track_batch) > 50:
             track_datas.extend(spotify_connection.get_track_data_batch(track_batch))
-        # for track_id in track_id_list:
-        #     print('track_id: ', track_id, type(track_id))
-        #     spotify_track_data = spotify_connection.get_track_data(track_id)
-        #     track_data = spotify_helper.clean_track_data(spotify_track_data)
-        #     print(track_data)
-        #     track_datas.extend(track_data)
 
         # clean track data
         for i, track in enumerate(track_datas):
             track_datas[i] = spotify_helper.clean_track_data(track)
+        
         snowflake_functions.insert_spotify_data(track_datas)
         snowflake_functions.log_module_run(TRACK_MODULE_NAME, 1)
         return make_response('inserted spotify_tracks', 200)
@@ -139,4 +134,4 @@ def match_artist_genres(new_artist_data):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port= 5000, debug=True)
