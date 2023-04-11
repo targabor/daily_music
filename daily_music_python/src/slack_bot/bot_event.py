@@ -4,7 +4,7 @@ import logging
 import json
 import re
 import subprocess
-import time
+import traceback
 
 from flask import Flask, make_response, request
 from slackeventsapi import SlackEventAdapter
@@ -72,6 +72,7 @@ def extract_data():
         return make_response('Extraction is done', 200)
     except Exception as e:
         snowflake_functions.log_module_run(SLACK_MODULE_NAME, 0)
+        traceback.print_exc()
         return make_response(str(e), 500)
 
 
@@ -112,4 +113,4 @@ def dummy_extract():
 #         client.chat_postMessage(channel=channel_id, text="Hello")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=5001, debug=True)

@@ -55,19 +55,17 @@ def get_latest_extracted_ts(module) -> str:
                             ORDER BY run_datetime DESC;'''
         row = connection.cursor().execute(select_query, module).fetchone()
         return datetime.timestamp(row[0]) if row is not None else 0
-
+    
 
 def get_latest_extraction_ts() -> str:
     """
     Returns the TimeStamp of the latest extracted message
-
-    Returns:
-        str: latest message TimeStamp
     """
-    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('META')) as connection:
-        select_query = '''SELECT MAX(MESSAGE_TIME) FROM EXTRACTED_MESSAGES;;'''
+    with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
+        select_query = '''SELECT MAX(MESSAGE_TIME)
+                            FROM EXTRACTED_MESSAGES;'''
         row = connection.cursor().execute(select_query).fetchone()
-        return datetime.timestamp(row[0]) if row is not None else 0
+        return datetime.timestamp(row[0]) if row is not None else 0 
 
 
 def get_new_youtube_songs() -> list[dict]:
@@ -117,8 +115,8 @@ def get_new_track_ids(from_date: str):
         Args:
             from_date: query spotify_ids sent after this date
     """
-    print('from_date:', from_date)
     from_date = datetime.fromtimestamp(from_date)
+    print('from_date:', from_date)
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('EXTRACTED')) as connection:
         query = f""" SELECT DISTINCT SPOTIFY_ID
                     FROM EXTRACTED_MESSAGES em

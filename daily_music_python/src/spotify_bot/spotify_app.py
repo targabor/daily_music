@@ -58,15 +58,22 @@ def get_data_for_tracks():
         print(last_run_date)
         track_id_list =  snowflake_functions.get_new_track_ids(last_run_date)
         track_datas = []
-        for track_id in track_id_list:
-            print('track_id: ', track_id, type(track_id))
-            # get track data from spotify and convert it to a format to ease insertion into snowflake
-            spotify_track_data = spotify_connection.get_track_data(track_id)
-            #print("spotify_track_data: " + str(spotify_track_data))
-            track_data = spotify_helper.clean_track_data(spotify_track_data)
-            print(track_data)
-            track_datas.extend(track_data)
-        snowflake_functions.insert_spotify_data(track_datas)
+
+        # get data fo tracks in batch
+        slice_50 = slice(min(50, len(track_id_list)))
+        track_batch = track_id_list[slice_50]
+        del(track_id_list[slice_50])
+        while len(track_batch) > 0:
+            track_datas.extend(spotify_connection.get_several_tracks(track_batch))
+            slice_50 = slice(min(50, len(track_id_list)))
+            track_batch = track_id_list[slice_50]
+            del(track_id_list[slice_50])
+        # clean track data
+        clean_track_datas = []
+        for track in track_datas:
+            clean_track_datas.extend(spotify_helper.clean_track_data(track))
+        
+        snowflake_functions.insert_spotify_data(clean_track_datas)
         snowflake_functions.log_module_run(TRACK_MODULE_NAME, 1)
         return make_response('inserted spotify_tracks', 200)
     except Exception as e:
@@ -130,4 +137,4 @@ def match_artist_genres(new_artist_data):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port= 5000, debug=True)
