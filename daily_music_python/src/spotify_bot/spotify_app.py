@@ -62,7 +62,7 @@ def get_data_for_tracks():
             print('track_id: ', track_id, type(track_id))
             # get track data from spotify and convert it to a format to ease insertion into snowflake
             spotify_track_data = spotify_connection.get_track_data(track_id)
-            #print("spotify_track_data: " + str(spotify_track_data))
+            # print("spotify_track_data: " + str(spotify_track_data))
             track_data = spotify_helper.clean_track_data(spotify_track_data)
             print(track_data)
             track_datas.extend(track_data)
@@ -130,4 +130,4 @@ def match_artist_genres(new_artist_data):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port= 5000, debug=True)
