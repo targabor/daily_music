@@ -12,7 +12,7 @@ def clean_track_data(track: dict):
                     "artist_id": "N/A",
                     "title": track['name'],
                     "popularity": track['popularity'],
-                    "genres": ','.join(track['album']['genres']),
+                    "genres": ','.join(track['album'].get('genres', [])),
                     "duration": track['duration_ms']}
 
     for artist in track["artists"]:
