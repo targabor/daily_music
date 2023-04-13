@@ -1,5 +1,8 @@
+import os
+
 class SnowflakeCredentials:
     """Helps to store and work with credentials in the different uses"""
+
 
     def __init__(self, line=''):
         """Constructor for SnowflakeCredentials class
@@ -23,6 +26,7 @@ class SnowflakeCredentials:
             self.database = splitted[5]
             self.schema = splitted[0]
 
+
     def get_credentialsFor(schemaName: str):
         """Returns the login credentials stored in "cred.ini"
 
@@ -33,10 +37,11 @@ class SnowflakeCredentials:
             SnowflakeCredentials: It contains all the necessary data to access the given schema in Snowflake.
         """
         return_credential = None
-        with open('/home/ec2-user/source/daily_music/daily_music_python/src/snowflake_functions/cred.ini', 'r') as cred_in:
+        with open(os.environ['CRED_INI_PATH'], 'r') as cred_in:
             for line in cred_in.readlines():
                 if line.startswith(schemaName):
                     return_credential = SnowflakeCredentials(line.strip())
+                    print(return_credential.schema, return_credential.database)
                     break
 
         if return_credential is not None:

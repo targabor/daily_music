@@ -131,6 +131,27 @@ class SpotifyConnection:
         json_response = response.json()
         return json_response
 
+
+    @check_token
+    def get_several_tracks(self, spotify_ids: list):
+        """get data for several tracks from Spotify API
+
+        Args:
+            spotify_ids (list): list of id of the tracks to request data for
+
+        Returns:
+            list of track data in dict format
+        """
+        Logger.info(f'getting track data for tracks with id {spotify_ids}')
+        auth_header = self.__get_header()
+        track_url = self.__base_url + 'tracks'
+        params = {'ids': ",".join(spotify_ids)}
+        response = requests.get(
+            track_url, params=params, headers=auth_header, verify=False)
+        json_response = response.json()
+        return json_response['tracks']
+
+
     @check_token
     def get_artist_genres(self, artist_id: str):
         """get genres linked to artist from Spotify API
