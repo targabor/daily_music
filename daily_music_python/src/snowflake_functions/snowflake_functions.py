@@ -55,7 +55,7 @@ def get_latest_extracted_ts(module) -> str:
                             ORDER BY run_datetime DESC;'''
         row = connection.cursor().execute(select_query, module).fetchone()
         return datetime.timestamp(row[0]) if row is not None else 0
-    
+
 
 def get_latest_extraction_ts() -> str:
     """
@@ -65,7 +65,7 @@ def get_latest_extraction_ts() -> str:
         select_query = '''SELECT MAX(MESSAGE_TIME)
                             FROM EXTRACTED_MESSAGES;'''
         row = connection.cursor().execute(select_query).fetchone()
-        return datetime.timestamp(row[0]) if row is not None else 0 
+        return datetime.timestamp(row[0]) if row is not None else 0
 
 
 def get_new_youtube_songs() -> list[dict]:
@@ -156,15 +156,17 @@ def insert_spotify_data(track_list: list):
             track_list: list of tracks in dict format
     """
     with __connect_to_snowflake(SnowflakeCredentials.get_credentialsFor('CONSOLIDATED')) as connection:
-        query = f""" INSERT INTO spotify_track (track_id, artist_id, title, popularity)
-                            VALUES (%s, %s, %s, %s)
+        query = f""" INSERT INTO spotify_track (track_id, artist_id, title, popularity, duration, genres )
+                            VALUES (%s, %s, %s, %s, %s, %s)
                         """
         cursor = connection.cursor()
         cursor.executemany(query,
                            [(track['spotify_id'],
                              track['artist_id'],
                              track['title'],
-                             track['popularity']) for track in track_list])
+                             track['popularity'],
+                             track['duration'],
+                             track['genres']) for track in track_list])
         connection.commit()
         cursor.close()
 

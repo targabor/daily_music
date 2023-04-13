@@ -11,8 +11,10 @@ def clean_track_data(track: dict):
     track_artist = {"spotify_id": track['id'],
                     "artist_id": "N/A",
                     "title": track['name'],
-                    "popularity": track['popularity']}
-    
+                    "popularity": track['popularity'],
+                    "genres": ','.join(track['album']['genres']),
+                    "duration": track['duration_ms']}
+
     for artist in track["artists"]:
         track_artist["artist_id"] = artist["id"]
         res.append(track_artist.copy())
@@ -28,6 +30,7 @@ def get_new_artists(artists: list, new_artists: set):
 
 def get_new_genres(genre: list, new_genres: set):
     return [g for g in new_genres if g not in genre]
+
 
 def make_genre_to_artist_pairs(artist_id: str, genres: list, genres_dict):
     """ Creates pairs for matching table for artists and its genres
@@ -55,4 +58,3 @@ def tuple_pairs_to_dict(genres: list):
             genres: list of tuples containing two elements
     """
     return {name: id for (id, name) in genres}
-
